@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme.dart';
-import 'data/mock_laundry_repository.dart';
+import 'data/api_laundry_repository.dart';
 import 'providers/app_state.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
@@ -17,8 +17,8 @@ class LaundryKuApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      // Nanti ganti MockLaundryRepository() dengan ApiLaundryRepository() saat backend siap.
-      create: (_) => AppState(MockLaundryRepository()),
+      // Backend Laravel. Untuk kembali ke data demo lokal: AppState(MockLaundryRepository()).
+      create: (_) => AppState(ApiLaundryRepository()),
       child: MaterialApp(
         title: 'Kasir LaundryKu',
         debugShowCheckedModeBanner: false,
