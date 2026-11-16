@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
+import '../core/report_pdf.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
 import '../providers/app_state.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/period_chips.dart';
+import '../widgets/report_pdf_dialog.dart';
 import 'expense_form_screen.dart';
 
 class _Group {
@@ -36,11 +39,56 @@ class _ReportsScreenState extends State<ReportsScreen> {
         showCheckmark: false,
         selectedColor: AppColors.primaryDark,
         backgroundColor: Colors.white,
-        side: BorderSide(color: selected ? AppColors.primaryDark : AppColors.border),
-        labelStyle: TextStyle(color: selected ? Colors.white : AppColors.ink, fontWeight: FontWeight.w600),
+        side: BorderSide(
+          color: selected ? AppColors.primaryDark : AppColors.border,
+        ),
+        labelStyle: TextStyle(
+          color: selected ? Colors.white : AppColors.ink,
+          fontWeight: FontWeight.w600,
+        ),
         onSelected: (_) => setState(() => _perMonth = month),
       ),
     );
+  }
+
+  /// Pilih isi laporan lalu bagikan / simpan sebagai PDF (periode mengikuti pilihan di layar).
+  Future<void> _downloadPdf() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final s = context.read<AppState>();
+    final range = _period.range;
+    final picked = await showReportPdfDialog(
+      context,
+      periodText: '${_period.label} (${rangeText(range.start, range.end)})',
+    );
+    if (picked == null || picked.isEmpty) return;
+    try {
+      final bytes = await buildReportPdf(
+        businessName: s.profile.businessName,
+        periodText: rangeText(range.start, range.end),
+        orders: s.ordersCreatedBetween(range.start, range.end),
+        expenses: s.expensesBetween(range.start, range.end),
+        sections: picked,
+        perMonth: _perMonth,
+      );
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename:
+            'laporan-${invoiceDate(range.start)}-${invoiceDate(range.end)}.pdf',
+      );
+      await s.logReportDownload(
+        periodLabel: _period.label,
+        from: range.start,
+        to: range.end,
+        sections: [for (final x in picked) x.name],
+      );
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Laporan PDF diunduh: ${tanggalJam(DateTime.now())}'),
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Gagal membuat PDF: $e')));
+    }
   }
 
   @override
@@ -59,16 +107,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final groups = <String, _Group>{};
     final keys = <String, DateTime>{};
     for (final o in orders) {
-      final d = _perMonth ? DateTime(o.createdAt.year, o.createdAt.month) : startOfDay(o.createdAt);
+      final d = _perMonth
+          ? DateTime(o.createdAt.year, o.createdAt.month)
+          : startOfDay(o.createdAt);
       final key = _perMonth ? bulanTahun(d) : tanggal(d);
       keys[key] = d;
       final g = groups.putIfAbsent(key, () => _Group());
       g.count++;
       g.amount += o.total;
     }
-    final rows = groups.entries.toList()..sort((a, b) => keys[b.key]!.compareTo(keys[a.key]!));
+    final rows = groups.entries.toList()
+      ..sort((a, b) => keys[b.key]!.compareTo(keys[a.key]!));
 
-    final summary = 'Laporan ${s.profile.businessName}\n'
+    final summary =
+        'Laporan ${s.profile.businessName}\n'
         'Periode: $dateText\n'
         'Omzet: ${rupiah(omzet)}\n'
         'Transaksi: ${orders.length}\n'
@@ -87,7 +139,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               await Clipboard.setData(ClipboardData(text: summary));
-              messenger.showSnackBar(const SnackBar(content: Text('Ringkasan laporan disalin.')));
+              messenger.showSnackBar(
+                const SnackBar(content: Text('Ringkasan laporan disalin.')),
+              );
             },
           ),
         ],
@@ -96,7 +150,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         padding: const EdgeInsets.only(bottom: 24),
         children: [
           const SizedBox(height: 12),
-          PeriodChips(selection: _period, onChanged: (p) => setState(() => _period = p)),
+          PeriodChips(
+            selection: _period,
+            onChanged: (p) => setState(() => _period = p),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Column(
@@ -109,26 +166,48 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: Text('Omzet ${_period.label}',
-                                style: const TextStyle(color: Colors.white70)),
+                            child: Text(
+                              'Omzet ${_period.label}',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
                           ),
-                          Pill('${orders.length} trx', color: Colors.white, icon: Icons.receipt_long, onDark: true),
+                          Pill(
+                            '${orders.length} trx',
+                            color: Colors.white,
+                            icon: Icons.receipt_long,
+                            onDark: true,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(rupiah(omzet),
-                          style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+                      Text(
+                        rupiah(omzet),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       Divider(color: Colors.white.withAlpha(60), height: 1),
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Icon(Icons.store_outlined, size: 15, color: Colors.white70),
+                          const Icon(
+                            Icons.store_outlined,
+                            size: 15,
+                            color: Colors.white70,
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
-                            child: Text('${s.profile.businessName}, $dateText',
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                            child: Text(
+                              '${s.profile.businessName}, $dateText',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -139,9 +218,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: StatTile(icon: Icons.attach_money, label: 'Total Omzet', value: rupiah(omzet))),
+                    Expanded(
+                      child: StatTile(
+                        icon: Icons.attach_money,
+                        label: 'Total Omzet',
+                        value: rupiah(omzet),
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    Expanded(child: StatTile(icon: Icons.receipt_long, label: 'Total Transaksi', value: '${orders.length}')),
+                    Expanded(
+                      child: StatTile(
+                        icon: Icons.receipt_long,
+                        label: 'Total Transaksi',
+                        value: '${orders.length}',
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -159,8 +250,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           children: [
                             const Divider(height: 1, color: AppColors.border),
                             const SizedBox(height: 6),
-                            InfoRow('Tunai', rupiah(paidByMethod(orders, PayMethod.tunai))),
-                            InfoRow('QRIS', rupiah(paidByMethod(orders, PayMethod.qris))),
+                            InfoRow(
+                              'Tunai',
+                              rupiah(paidByMethod(orders, PayMethod.tunai)),
+                            ),
+                            InfoRow(
+                              'QRIS',
+                              rupiah(paidByMethod(orders, PayMethod.qris)),
+                            ),
                           ],
                         ),
                       ),
@@ -184,15 +281,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: Column(
                     children: [
                       InfoRow('Total Omzet', rupiah(omzet), bold: true),
-                      InfoRow('Total Pengeluaran', '-${rupiah(expense)}', valueColor: AppColors.danger),
+                      InfoRow(
+                        'Total Pengeluaran',
+                        '-${rupiah(expense)}',
+                        valueColor: AppColors.danger,
+                      ),
                       const Divider(color: AppColors.border),
-                      InfoRow('Laba (Omzet - Pengeluaran)', rupiah(profit),
-                          bold: true, valueColor: profit >= 0 ? AppColors.success : AppColors.danger),
+                      InfoRow(
+                        'Laba (Omzet - Pengeluaran)',
+                        rupiah(profit),
+                        bold: true,
+                        valueColor: profit >= 0
+                            ? AppColors.success
+                            : AppColors.danger,
+                      ),
                       if (s.canExpense) ...[
                         const SizedBox(height: 4),
                         TextButton.icon(
-                          onPressed: () => Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (_) => const ExpenseFormScreen())),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ExpenseFormScreen(),
+                            ),
+                          ),
                           icon: const Icon(Icons.add),
                           label: const Text('Catat Pengeluaran'),
                         ),
@@ -215,7 +325,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ),
                       const SizedBox(height: 12),
                       if (rows.isEmpty)
-                        const EmptyBox(icon: Icons.inbox_outlined, title: 'Belum ada transaksi di periode ini')
+                        const EmptyBox(
+                          icon: Icons.inbox_outlined,
+                          title: 'Belum ada transaksi di periode ini',
+                        )
                       else
                         for (final r in rows)
                           Padding(
@@ -224,19 +337,56 @@ class _ReportsScreenState extends State<ReportsScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(r.key, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.ink)),
-                                      Text('${r.value.count} transaksi',
-                                          style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                                      Text(
+                                        r.key,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.ink,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${r.value.count} transaksi',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.muted,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                                Text(rupiah(r.value.amount),
-                                    style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+                                Text(
+                                  rupiah(r.value.amount),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.ink,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SectionCard(
+                  icon: Icons.download_outlined,
+                  title: 'Unduh Laporan',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Mengikuti periode yang dipilih di atas. Isi laporan bisa dipilih.',
+                        style: TextStyle(fontSize: 13, color: AppColors.muted),
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        onPressed: _downloadPdf,
+                        icon: const Icon(Icons.picture_as_pdf_outlined),
+                        label: const Text('Unduh PDF'),
+                      ),
                     ],
                   ),
                 ),

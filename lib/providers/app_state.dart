@@ -12,8 +12,12 @@ class AppState extends ChangeNotifier {
 
   bool loggedIn = false;
   AuthSession session = const AuthSession();
-  BusinessProfile profile =
-      const BusinessProfile(businessName: '', ownerName: '', email: '', phone: '');
+  BusinessProfile profile = const BusinessProfile(
+    businessName: '',
+    ownerName: '',
+    email: '',
+    phone: '',
+  );
   List<ServiceCategory> categories = [];
   List<LaundryService> services = [];
   List<Customer> customers = [];
@@ -79,7 +83,8 @@ class AppState extends ChangeNotifier {
   }
 
   /// true jika berhasil, false jika password lama salah (mengganti password akun yang sedang login).
-  Future<bool> changePassword(String oldPassword, String newPassword) => _repo.changePassword(
+  Future<bool> changePassword(String oldPassword, String newPassword) =>
+      _repo.changePassword(
         employeeId: session.employeeId,
         oldPassword: oldPassword,
         newPassword: newPassword,
@@ -97,7 +102,8 @@ class AppState extends ChangeNotifier {
   }
 
   void _sortOrders() {
-    orders = List<LaundryOrder>.of(orders)..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    orders = List<LaundryOrder>.of(orders)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   // -------------------------------------------------------------- profil
@@ -140,10 +146,15 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> saveEmployeePermissions(String id, Set<AppPermission> permissions) async {
+  Future<void> saveEmployeePermissions(
+    String id,
+    Set<AppPermission> permissions,
+  ) async {
     final current = employeeById(id);
     if (current == null) return;
-    final saved = await _repo.updateEmployee(current.withPermissions(permissions));
+    final saved = await _repo.updateEmployee(
+      current.withPermissions(permissions),
+    );
     employees = [for (final e in employees) e.id == saved.id ? saved : e];
     notifyListeners();
   }
@@ -159,7 +170,9 @@ class AppState extends ChangeNotifier {
 
   // ------------------------------------------------------------- layanan
   Future<ServiceCategory> addCategory(String name, String flow) async {
-    final c = await _repo.saveCategory(ServiceCategory(id: '', name: name, flow: flow));
+    final c = await _repo.saveCategory(
+      ServiceCategory(id: '', name: name, flow: flow),
+    );
     categories = [...categories, c];
     notifyListeners();
     return c;
@@ -244,7 +257,11 @@ class AppState extends ChangeNotifier {
     return updated;
   }
 
-  Future<LaundryOrder> addPayment(String orderId, PayMethod method, int amount) async {
+  Future<LaundryOrder> addPayment(
+    String orderId,
+    PayMethod method,
+    int amount,
+  ) async {
     final updated = await _repo.addPayment(orderId, method, amount);
     _replaceOrder(updated);
     return updated;
@@ -274,10 +291,25 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Mencatat unduhan laporan ke server (riwayat: siapa, kapan, periode, isi).
+  Future<void> logReportDownload({
+    required String periodLabel,
+    required DateTime from,
+    required DateTime to,
+    required List<String> sections,
+  }) => _repo.logReportDownload(
+    periodLabel: periodLabel,
+    from: from,
+    to: to,
+    sections: sections,
+  );
+
   List<Expense> expensesBetween(DateTime from, DateTime to) {
     final start = startOfDay(from);
     final end = startOfDay(to).add(const Duration(days: 1));
-    final list = expenses.where((e) => !e.date.isBefore(start) && e.date.isBefore(end)).toList();
+    final list = expenses
+        .where((e) => !e.date.isBefore(start) && e.date.isBefore(end))
+        .toList();
     list.sort((a, b) => b.date.compareTo(a.date));
     return list;
   }
@@ -288,26 +320,37 @@ class AppState extends ChangeNotifier {
     final start = startOfDay(from);
     final end = startOfDay(to).add(const Duration(days: 1));
     return orders
-        .where((o) => !o.cancelled && !o.createdAt.isBefore(start) && o.createdAt.isBefore(end))
+        .where(
+          (o) =>
+              !o.cancelled &&
+              !o.createdAt.isBefore(start) &&
+              o.createdAt.isBefore(end),
+        )
         .toList();
   }
 
-  int countStatus(OrderStatus s) => orders.where((o) => !o.cancelled && o.status == s).length;
+  int countStatus(OrderStatus s) =>
+      orders.where((o) => !o.cancelled && o.status == s).length;
 
-  List<LaundryOrder> get cancelledOrders => orders.where((o) => o.cancelled).toList();
+  List<LaundryOrder> get cancelledOrders =>
+      orders.where((o) => o.cancelled).toList();
 
-  List<LaundryOrder> get overdueOrders => orders.where((o) => o.isOverdue()).toList();
+  List<LaundryOrder> get overdueOrders =>
+      orders.where((o) => o.isOverdue()).toList();
 
   List<LaundryOrder> dueOn(DateTime day) =>
       orders.where((o) => o.isActive && sameDay(o.dueAt, day)).toList();
 
   List<LaundryOrder> get todayOrders {
     final now = DateTime.now();
-    return orders.where((o) => !o.cancelled && sameDay(o.createdAt, now)).toList();
+    return orders
+        .where((o) => !o.cancelled && sameDay(o.createdAt, now))
+        .toList();
   }
 }
 
-int sumTotal(Iterable<LaundryOrder> os) => os.fold<int>(0, (s, o) => s + o.total);
+int sumTotal(Iterable<LaundryOrder> os) =>
+    os.fold<int>(0, (s, o) => s + o.total);
 int sumPaid(Iterable<LaundryOrder> os) => os.fold<int>(0, (s, o) => s + o.paid);
 int sumExpense(Iterable<Expense> es) => es.fold<int>(0, (s, e) => s + e.amount);
 

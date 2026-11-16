@@ -1,22 +1,30 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/models.dart';
 import 'laundry_repository.dart';
 
-/// Alamat API. Ubah lewat --dart-define, contoh:
+/// Alamat API, dipilih otomatis sesuai platform sehingga bisa dijalankan di mana saja:
+///   - Emulator Android (Android Studio)        -> http://10.0.2.2:8000/api
+///   - Chrome / Windows / macOS / Linux / iOS    -> http://localhost:8000/api
+/// HP Android asli (satu Wi-Fi dengan laptop) atau server lain: timpa lewat --dart-define, contoh:
 ///   flutter run --dart-define=API_BASE_URL=http://192.168.1.10:8000/api
-/// 10.0.2.2 = alamat komputer Anda dari dalam emulator Android.
-const String kApiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://10.0.2.2:8000/api',
-);
+const String _kApiBaseUrlOverride = String.fromEnvironment('API_BASE_URL');
+
+String get kApiBaseUrl {
+  if (_kApiBaseUrlOverride.isNotEmpty) return _kApiBaseUrlOverride;
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    return 'http://10.0.2.2:8000/api'; // 10.0.2.2 = laptop, dilihat dari emulator Android
+  }
+  return 'http://localhost:8000/api';
+}
 
 /// Implementasi LaundryRepository yang memanggil backend Laravel (REST API + Sanctum).
 class ApiLaundryRepository extends LaundryRepository {
-  ApiLaundryRepository({String baseUrl = kApiBaseUrl})
+  ApiLaundryRepository({String? baseUrl})
     : _dio = Dio(
         BaseOptions(
-          baseUrl: baseUrl,
+          baseUrl: baseUrl ?? kApiBaseUrl,
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 20),
           headers: {'Accept': 'application/json'},
@@ -510,6 +518,29 @@ class ApiLaundryRepository extends LaundryRepository {
   @override
   Future<void> deleteExpense(String id) =>
       _guard(() => _dio.delete('/expenses/$id'));
+
+  @override
+  Future<void> logReportDownload({
+    required String periodLabel,
+    required DateTime from,
+    required DateTime to,
+    required List<String> sections,
+  }) async {
+    try {
+      await _dio.post(
+        '/reports/downloads',
+        data: {
+          'format': 'pdf',
+          'period_label': periodLabel,
+          'from': _date(from),
+          'to': _date(to),
+          'sections': sections,
+        },
+      );
+    } on DioException catch (_) {
+      // Gagal mencatat riwayat tidak boleh membatalkan unduhan PDF.
+    }
+  }
 
   // ------------------------------------------- endpoint tambahan (opsional dipakai UI)
   /// GET /dashboard: ringkasan beranda yang dihitung server.

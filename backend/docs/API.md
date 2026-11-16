@@ -91,6 +91,8 @@ Semua jawaban berformat JSON. Setelah login, kirim header `Authorization: Bearer
 |---|---|---|
 | `GET /dashboard` | login | `today{transactions,omzet,received}`, `status_counts`, `overdue`, `due_today`, `due_tomorrow`, `cancelled` |
 | `GET /reports/summary` | `laporan` | `period=today\|7days\|month\|custom` (+`from`,`to`), `group_by=day\|month` → `omzet, transactions, received, receivable, expense, profit, by_method{tunai,qris}, breakdown[]` |
+| `GET /reports/downloads` | `laporan` | 50 riwayat unduhan terbaru `{id,user_name,format,period_label,period_from,period_to,sections[],downloaded_at}` |
+| `POST /reports/downloads` | `laporan` | `period_label, from, to, sections[] (ringkasan\|harian\|transaksi\|rincianLayanan\|layananTerlaris\|pembayaran\|pengeluaran), format=pdf` → catat unduhan (201); `downloaded_at` memakai jam server |
 
 Aturan laporan: transaksi batal tidak dihitung; omzet = total transaksi yang **dibuat** pada periode; piutang = omzet − sudah diterima; laba = omzet − pengeluaran.
 

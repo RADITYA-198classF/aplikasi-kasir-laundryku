@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\ReportDownloadController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\ForceJsonResponse;
@@ -99,6 +100,10 @@ Route::middleware([ForceJsonResponse::class])->group(function () {
 
         // -------------------------------------------------------- laporan
         Route::get('/reports/summary', [ReportController::class, 'summary'])
+            ->middleware(CheckPermission::class . ':' . P::LAPORAN);
+        Route::get('/reports/downloads', [ReportDownloadController::class, 'index'])
+            ->middleware(CheckPermission::class . ':' . P::LAPORAN);
+        Route::post('/reports/downloads', [ReportDownloadController::class, 'store'])
             ->middleware(CheckPermission::class . ':' . P::LAPORAN);
     });
 });

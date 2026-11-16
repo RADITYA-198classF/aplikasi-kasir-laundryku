@@ -17,7 +17,11 @@ abstract class LaundryRepository {
   });
 
   /// PUT /auth/password  -> false jika password lama salah (employeeId null = owner)
-  Future<bool> changePassword({String? employeeId, required String oldPassword, required String newPassword});
+  Future<bool> changePassword({
+    String? employeeId,
+    required String oldPassword,
+    required String newPassword,
+  });
 
   /// GET /employees
   Future<List<Employee>> fetchEmployees();
@@ -98,4 +102,13 @@ abstract class LaundryRepository {
 
   /// DELETE /expenses/{id}
   Future<void> deleteExpense(String id);
+
+  /// POST /reports/downloads  -> mencatat riwayat unduhan laporan (siapa, kapan, periode, isi).
+  /// Default tidak melakukan apa-apa (mode data lokal); ApiLaundryRepository mengirimnya ke server.
+  Future<void> logReportDownload({
+    required String periodLabel,
+    required DateTime from,
+    required DateTime to,
+    required List<String> sections,
+  }) async {}
 }
