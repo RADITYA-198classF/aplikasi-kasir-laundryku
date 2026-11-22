@@ -93,19 +93,25 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
     }
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
-    await context.read<AppState>().saveService(
-          LaundryService(
-            id: widget.existing?.id ?? '',
-            categoryId: _categoryId!,
-            name: _name.text.trim(),
-            unit: _unit,
-            price: int.parse(_price.text.trim()),
-            minQty: double.tryParse(_min.text.replaceAll(',', '.')) ?? 0,
-            durationValue: int.parse(_duration.text.trim()),
-            durationUnit: _durationUnit,
-            active: widget.existing?.active ?? true,
-          ),
-        );
+    try {
+      await context.read<AppState>().saveService(
+            LaundryService(
+              id: widget.existing?.id ?? '',
+              categoryId: _categoryId!,
+              name: _name.text.trim(),
+              unit: _unit,
+              price: int.parse(_price.text.trim()),
+              minQty: double.tryParse(_min.text.replaceAll(',', '.')) ?? 0,
+              durationValue: int.parse(_duration.text.trim()),
+              durationUnit: _durationUnit,
+              active: widget.existing?.active ?? true,
+            ),
+          );
+    } catch (_) {
+      // Buka kembali tombol Simpan; pesan error ditampilkan oleh handler global di main.dart.
+      if (mounted) setState(() => _saving = false);
+      rethrow;
+    }
     if (!mounted) return;
     messenger.showSnackBar(const SnackBar(content: Text('Layanan disimpan.')));
     Navigator.of(context).pop();

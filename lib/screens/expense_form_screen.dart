@@ -52,9 +52,15 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       return;
     }
     setState(() => _saving = true);
-    await context.read<AppState>().saveExpense(
-          Expense(id: '', date: _date, category: _category!, amount: amount, note: _note.text.trim()),
-        );
+    try {
+      await context.read<AppState>().saveExpense(
+            Expense(id: '', date: _date, category: _category!, amount: amount, note: _note.text.trim()),
+          );
+    } catch (_) {
+      // Buka kembali tombol Simpan; pesan error ditampilkan oleh handler global di main.dart.
+      if (mounted) setState(() => _saving = false);
+      rethrow;
+    }
     if (!mounted) return;
     messenger.showSnackBar(const SnackBar(content: Text('Pengeluaran dicatat.')));
     Navigator.of(context).pop();

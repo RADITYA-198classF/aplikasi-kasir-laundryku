@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Middleware API (throttle, auth:sanctum, OwnerOnly, CheckPermission) dipasang langsung di routes/api.php.
+        // Tanpa ini, request tanpa header Accept dan tanpa token error 500 ("Route [login] not defined") alih-alih 401 JSON.
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Semua error di /api/* (401, 403, 404, 422, 500) dijawab JSON, bukan halaman HTML / redirect.
