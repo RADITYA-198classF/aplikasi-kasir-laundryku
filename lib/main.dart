@@ -7,6 +7,7 @@ import 'data/api_laundry_repository.dart';
 import 'providers/app_state.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 
 /// Kunci global: error yang tidak tertangkap di layar mana pun tetap tampil sebagai SnackBar
 /// (mis. server mati, atau status transaksi sudah diubah dari perangkat lain).
@@ -47,7 +48,7 @@ class LaundryKuApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: messengerKey,
         theme: buildAppTheme(),
-        home: const AuthGate(),
+        home: const SplashScreen(next: AuthGate()),
       ),
     );
   }
