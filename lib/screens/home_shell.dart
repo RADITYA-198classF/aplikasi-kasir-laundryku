@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/bottom_bar.dart';
+import '../widgets/common_widgets.dart';
 import 'dashboard_screen.dart';
 import 'help_screen.dart';
 import 'new_order_screen.dart';
@@ -52,11 +53,11 @@ class _HomeShellState extends State<HomeShell> {
       floatingActionButtonLocation: fabSlot < 0 ? null : SlotFabLocation(fabSlot, items.length),
       floatingActionButton: fabSlot < 0
           ? null
-          : FloatingActionButton(
+          : LkFab(
               onPressed: () => _go(2),
-              backgroundColor: AppColors.amber,
-              foregroundColor: AppColors.ink,
-              elevation: 4,
+              gradient: AppColors.freshGradient,
+              foregroundColor: AppColors.primaryDark,
+              shadowColor: const Color(0x8038BDF8),
               shape: const CircleBorder(),
               child: const Icon(Icons.add, size: 34),
             ),

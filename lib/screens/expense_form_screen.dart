@@ -116,14 +116,10 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
               runSpacing: 8,
               children: [
                 for (final c in expenseCategories)
-                  ChoiceChip(
+                  LkChoiceChip(
                     avatar: Icon(c.icon, size: 18, color: _category == c.name ? Colors.white : AppColors.primaryDark),
                     label: Text(c.name),
                     selected: _category == c.name,
-                    showCheckmark: false,
-                    selectedColor: AppColors.primaryDark,
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: _category == c.name ? AppColors.primaryDark : AppColors.border),
                     labelStyle: TextStyle(
                         color: _category == c.name ? Colors.white : AppColors.ink, fontWeight: FontWeight.w500),
                     onSelected: (_) => setState(() => _category = c.name),

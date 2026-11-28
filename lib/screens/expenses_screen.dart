@@ -29,7 +29,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Batal')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            style: solidFilledStyle(background: AppColors.danger),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Hapus'),
           ),
@@ -47,10 +47,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
     return Scaffold(
       appBar: lkAppBar('Pengeluaran'),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: LkFab(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ExpenseFormScreen())),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
         tooltip: 'Catat pengeluaran',
         child: const Icon(Icons.add),
       ),

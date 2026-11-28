@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/report_pdf.dart';
 import '../core/theme.dart';
+import 'common_widgets.dart';
 
 /// Dialog "Unduh Laporan PDF": pengguna memilih isi laporan.
 /// Mengembalikan bagian yang dipilih, atau null jika dibatalkan.
@@ -55,9 +56,9 @@ class _ReportPdfDialogState extends State<_ReportPdfDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Center(
-                child: CircleAvatar(
+                child: GradientAvatar(
                   radius: 28,
-                  backgroundColor: AppColors.soft,
+                  soft: true,
                   child: Icon(
                     Icons.picture_as_pdf_outlined,
                     color: AppColors.primaryDark,

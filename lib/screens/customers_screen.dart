@@ -50,10 +50,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
     return Scaffold(
       appBar: lkAppBar('Pelanggan'),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: LkFab(
         onPressed: () => showCustomerForm(context),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
         tooltip: 'Tambah pelanggan',
         child: const Icon(Icons.person_add_alt_1_outlined),
       ),
@@ -84,8 +82,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              backgroundColor: AppColors.soft,
+                            GradientAvatar(
+                              soft: true,
                               child: Text(c.initial,
                                   style: const TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
                             ),

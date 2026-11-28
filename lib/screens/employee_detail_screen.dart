@@ -102,9 +102,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           AppCard(
             child: Row(
               children: [
-                CircleAvatar(
+                GradientAvatar(
                   radius: 26,
-                  backgroundColor: AppColors.primaryDark,
                   child: Text(e.initial,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20)),
                 ),

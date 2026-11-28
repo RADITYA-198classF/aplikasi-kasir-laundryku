@@ -24,13 +24,13 @@ enum ReportSection {
 }
 
 // Warna PDF (sama dengan palet aplikasi).
-final _primary = PdfColor.fromHex('#0E3F94');
-final _ink = PdfColor.fromHex('#0F2A4A');
-final _muted = PdfColor.fromHex('#6B7C93');
-final _soft = PdfColor.fromHex('#E4EDFB');
-final _border = PdfColor.fromHex('#D5DEEA');
-final _success = PdfColor.fromHex('#1E8E5A');
-final _danger = PdfColor.fromHex('#C62828');
+final _primary = PdfColor.fromHex('#0B4FB3');
+final _ink = PdfColor.fromHex('#0B2545');
+final _muted = PdfColor.fromHex('#4F6B89');
+final _soft = PdfColor.fromHex('#E3F2FD');
+final _border = PdfColor.fromHex('#D0E4F7');
+final _success = PdfColor.fromHex('#0FA36B');
+final _danger = PdfColor.fromHex('#E0264A');
 
 /// Font bawaan PDF hanya mendukung huruf Latin; karakter lain (emoji, dll.) dibuang agar tidak error.
 String _t(String s) => s.replaceAll(RegExp(r'[^\u0000-\u00FF]'), '');

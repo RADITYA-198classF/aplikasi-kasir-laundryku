@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Biru utama LaundryKu (AppColors.primaryDark) untuk layar peluncuran native -->
-    <color name="splash_blue">#0E3F94</color>
+    <!-- Biru LaundryKu untuk layar peluncuran native -->
+    <color name="splash_blue">#1976D2</color>
 </resources>

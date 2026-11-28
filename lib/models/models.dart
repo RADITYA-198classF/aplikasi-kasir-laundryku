@@ -76,12 +76,18 @@ IconData expenseIcon(String category) {
   return Icons.more_horiz;
 }
 
+/// Ikon tambahan dari font LaundryIcons (lihat pubspec.yaml).
+class LkIcons {
+  static const shoe = IconData(0xE900, fontFamily: 'LaundryIcons');
+  static const teddyBear = IconData(0xE901, fontFamily: 'LaundryIcons');
+}
+
 IconData categoryIcon(String name) {
   final n = name.toLowerCase();
   if (n.contains('kiloan')) return Icons.local_laundry_service_outlined;
   if (n.contains('bed')) return Icons.hotel_outlined;
-  if (n.contains('boneka')) return Icons.toys_outlined;
-  if (n.contains('sepatu')) return Icons.directions_walk;
+  if (n.contains('boneka')) return LkIcons.teddyBear;
+  if (n.contains('sepatu')) return LkIcons.shoe;
   if (n.contains('tas')) return Icons.work_outline;
   if (n.contains('karpet')) return Icons.texture;
   return Icons.category_outlined;

@@ -52,8 +52,11 @@ class OrderDetailScreen extends StatelessWidget {
     );
     if (input == null) return;
     final amount = input.amount > order.remaining ? order.remaining : input.amount;
+    final change = input.method == PayMethod.tunai ? input.amount - amount : 0;
     await state.addPayment(order.id, input.method, amount);
-    messenger.showSnackBar(const SnackBar(content: Text('Pembayaran dicatat.')));
+    messenger.showSnackBar(SnackBar(
+      content: Text(change > 0 ? 'Pembayaran dicatat. Kembalian ${rupiah(change)}.' : 'Pembayaran dicatat.'),
+    ));
   }
 
   Future<void> _cancel(BuildContext context, LaundryOrder order) async {
@@ -68,7 +71,7 @@ class OrderDetailScreen extends StatelessWidget {
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Tidak')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            style: solidFilledStyle(background: AppColors.danger),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Ya, batalkan'),
           ),
@@ -203,6 +206,7 @@ class OrderDetailScreen extends StatelessWidget {
             trailing: order.customerPhone.isEmpty
                 ? null
                 : FilledButton.tonalIcon(
+                    style: tonalSolidStyle,
                     onPressed: () => _chat(messenger, order, state.profile),
                     icon: const Icon(Icons.chat_outlined, size: 18),
                     label: const Text('Chat'),

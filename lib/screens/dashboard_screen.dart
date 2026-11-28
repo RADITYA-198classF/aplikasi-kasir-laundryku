@@ -89,7 +89,7 @@ class DashboardScreen extends StatelessWidget {
           Container(
             width: 46,
             height: 46,
-            decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(gradient: AppColors.softGradient, borderRadius: BorderRadius.circular(14)),
             child: Icon(icon, color: AppColors.primaryDark, size: 26),
           ),
           const SizedBox(height: 8),
@@ -268,7 +268,7 @@ class DashboardScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   child: Row(
                     children: [
-                      const IconCircle(Icons.logout, size: 44, color: AppColors.danger, bg: Color(0x1FC62828)),
+                      const IconCircle(Icons.logout, size: 44, color: AppColors.danger, bg: Color(0x1FE0264A)),
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Column(

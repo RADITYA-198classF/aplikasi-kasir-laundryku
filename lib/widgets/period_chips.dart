@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/format.dart';
 import '../core/theme.dart';
+import 'common_widgets.dart';
 
 /// Pilihan periode untuk Laporan dan Pengeluaran:
 /// 0 = Hari Ini, 1 = 7 Hari Terakhir, 2 = Bulan Ini, 3 = Custom.
@@ -61,14 +62,10 @@ class PeriodChips extends StatelessWidget {
     Widget chip(String text, bool selected, VoidCallback onTap, {IconData? icon}) {
       return Padding(
         padding: const EdgeInsets.only(right: 8),
-        child: ChoiceChip(
+        child: LkChoiceChip(
           avatar: icon == null ? null : Icon(icon, size: 16, color: selected ? Colors.white : AppColors.primaryDark),
           label: Text(text),
           selected: selected,
-          showCheckmark: false,
-          selectedColor: AppColors.primaryDark,
-          backgroundColor: Colors.white,
-          side: BorderSide(color: selected ? AppColors.primaryDark : AppColors.border),
           labelStyle: TextStyle(color: selected ? Colors.white : AppColors.ink, fontWeight: FontWeight.w600),
           onSelected: (_) => onTap(),
         ),

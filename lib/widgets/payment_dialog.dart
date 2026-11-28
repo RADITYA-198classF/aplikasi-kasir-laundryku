@@ -67,9 +67,24 @@ class _PaymentDialogState extends State<_PaymentDialog> {
     return r < 0 ? 0 : r;
   }
 
+  /// Kembalian untuk pelanggan: hanya pembayaran tunai yang uang diterimanya melebihi sisa tagihan.
+  int get _change {
+    if (_method != PayMethod.tunai) return 0;
+    final c = _amount - (widget.total - widget.alreadyPaid);
+    return c < 0 ? 0 : c;
+  }
+
   @override
   Widget build(BuildContext context) {
     final valid = _amount > 0;
+    final hasChange = _change > 0;
+    final bannerColor = hasChange ? AppColors.primaryDark : (_remaining == 0 ? AppColors.success : AppColors.warning);
+    final bannerIcon = hasChange
+        ? Icons.payments_outlined
+        : (_remaining == 0 ? Icons.check_circle_outline : Icons.info_outline);
+    final bannerText = hasChange
+        ? 'Kembalikan ${rupiah(_change)} ke pelanggan.'
+        : (_remaining == 0 ? 'Transaksi jadi lunas setelah ini.' : 'Sisa tagihan dibayar saat cucian diambil.');
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -140,6 +155,8 @@ class _PaymentDialogState extends State<_PaymentDialog> {
                   const Divider(color: AppColors.border),
                   InfoRow('Sisa tagihan', rupiah(_remaining), bold: true,
                       valueColor: _remaining == 0 ? AppColors.success : AppColors.danger),
+                  if (hasChange)
+                    InfoRow('Kembalian', rupiah(_change), bold: true, valueColor: AppColors.primaryDark),
                 ],
               ),
             ),
@@ -147,21 +164,17 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: (_remaining == 0 ? AppColors.success : AppColors.warning).withAlpha(28),
+                color: bannerColor.withAlpha(28),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  Icon(_remaining == 0 ? Icons.check_circle_outline : Icons.info_outline,
-                      size: 18, color: _remaining == 0 ? AppColors.success : AppColors.warning),
+                  Icon(bannerIcon, size: 18, color: bannerColor),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      _remaining == 0 ? 'Transaksi jadi lunas setelah ini.' : 'Sisa tagihan dibayar saat cucian diambil.',
-                      style: TextStyle(
-                          color: _remaining == 0 ? AppColors.success : AppColors.warning,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13),
+                      bannerText,
+                      style: TextStyle(color: bannerColor, fontWeight: FontWeight.w600, fontSize: 13),
                     ),
                   ),
                 ],

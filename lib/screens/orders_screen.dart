@@ -45,7 +45,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 for (var i = 0; i < labels.length; i++)
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
+                    child: LkChoiceChip(
                       label: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -66,10 +66,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ],
                       ),
                       selected: _tab == i,
-                      showCheckmark: false,
-                      selectedColor: AppColors.primaryDark,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: _tab == i ? AppColors.primaryDark : AppColors.border),
                       labelStyle:
                           TextStyle(color: _tab == i ? Colors.white : AppColors.ink, fontWeight: FontWeight.w600),
                       onSelected: (_) => setState(() => _tab = i),

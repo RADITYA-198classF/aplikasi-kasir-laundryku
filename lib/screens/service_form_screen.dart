@@ -127,7 +127,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Batal')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            style: solidFilledStyle(background: AppColors.danger),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Hapus'),
           ),
@@ -168,13 +168,9 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
                 runSpacing: 8,
                 children: [
                   for (final c in cats)
-                    ChoiceChip(
+                    LkChoiceChip(
                       label: Text(c.name),
                       selected: _categoryId == c.id,
-                      showCheckmark: false,
-                      selectedColor: AppColors.primaryDark,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: _categoryId == c.id ? AppColors.primaryDark : AppColors.border),
                       labelStyle: TextStyle(
                           color: _categoryId == c.id ? Colors.white : AppColors.ink, fontWeight: FontWeight.w600),
                       onSelected: (_) => setState(() => _categoryId = c.id),

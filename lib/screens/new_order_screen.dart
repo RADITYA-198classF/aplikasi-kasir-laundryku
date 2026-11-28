@@ -160,7 +160,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           width: 28,
           height: 28,
           alignment: Alignment.center,
-          decoration: const BoxDecoration(color: AppColors.primaryDark, shape: BoxShape.circle),
+          decoration: const BoxDecoration(gradient: AppColors.gradient, shape: BoxShape.circle),
           child: Text('$n', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
         ),
         const SizedBox(width: 10),
@@ -184,8 +184,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
         decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(16)),
         child: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: AppColors.primaryDark,
+            GradientAvatar(
               child: Text(_customer!.initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
             ),
             const SizedBox(width: 12),
@@ -258,9 +257,9 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                   dense: true,
                   tileColor: AppColors.field,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  leading: CircleAvatar(
+                  leading: GradientAvatar(
                     radius: 16,
-                    backgroundColor: AppColors.soft,
+                    soft: true,
                     child: Text(c.initial, style: const TextStyle(color: AppColors.primaryDark, fontWeight: FontWeight.w800)),
                   ),
                   title: Text(c.name, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -272,6 +271,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
+              style: tonalSolidStyle,
               onPressed: () => setState(() {
                 _addingCustomer = true;
                 _newName.text = _search.text.trim();
@@ -455,7 +455,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                   width: double.infinity,
                   height: 48,
                   child: FilledButton.icon(
-                    style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: AppColors.primaryDark),
+                    style: solidFilledStyle(background: Colors.white, foreground: AppColors.primaryDark),
                     onPressed: _saving ? null : _submit,
                     icon: const Icon(Icons.check_circle_outline),
                     label: Text(_saving ? 'Menyimpan...' : 'Buat Transaksi'),

@@ -33,15 +33,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final selected = _perMonth == month;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: ChoiceChip(
+      child: LkChoiceChip(
         label: Text(label),
         selected: selected,
-        showCheckmark: false,
-        selectedColor: AppColors.primaryDark,
-        backgroundColor: Colors.white,
-        side: BorderSide(
-          color: selected ? AppColors.primaryDark : AppColors.border,
-        ),
         labelStyle: TextStyle(
           color: selected ? Colors.white : AppColors.ink,
           fontWeight: FontWeight.w600,

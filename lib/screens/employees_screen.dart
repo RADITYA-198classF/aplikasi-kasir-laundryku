@@ -17,11 +17,9 @@ class EmployeesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: lkAppBar('Kelola Karyawan'),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: LkFab(
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const EmployeeFormScreen())),
-        backgroundColor: AppColors.primaryDark,
-        foregroundColor: Colors.white,
         tooltip: 'Karyawan baru',
         child: const Icon(Icons.add),
       ),
@@ -47,9 +45,8 @@ class EmployeesScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(
+                          GradientAvatar(
                             radius: 22,
-                            backgroundColor: AppColors.primaryDark,
                             child: Text(e.initial,
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
                           ),

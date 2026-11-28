@@ -8,6 +8,7 @@ PreferredSizeWidget lkAppBar(String title, {List<Widget>? actions}) {
   return AppBar(
     backgroundColor: AppColors.primaryDark,
     foregroundColor: Colors.white,
+    flexibleSpace: const DecoratedBox(decoration: BoxDecoration(gradient: AppColors.gradientH)),
     elevation: 0,
     scrolledUnderElevation: 0,
     surfaceTintColor: Colors.transparent,
@@ -31,11 +32,16 @@ class BrandPill extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: large ? 20 : 12, vertical: large ? 10 : 5),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
       child: Text.rich(
-        const TextSpan(children: [
-          TextSpan(text: 'Kasir ', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
+        TextSpan(children: [
+          const TextSpan(text: 'Kasir ', style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.ink)),
           TextSpan(
             text: 'LaundryKu',
-            style: TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.w800, color: AppColors.primary),
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w800,
+              foreground: Paint()
+                ..shader = AppColors.gradientH.createShader(Rect.fromLTWH(0, 0, large ? 175 : 100, 24)),
+            ),
           ),
         ]),
         style: TextStyle(fontSize: large ? 22 : 13),
@@ -66,7 +72,7 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: const [BoxShadow(color: Color(0x14102A4A), blurRadius: 14, offset: Offset(0, 5))],
+        boxShadow: const [BoxShadow(color: Color(0x140B2545), blurRadius: 14, offset: Offset(0, 5))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -90,7 +96,9 @@ class IconCircle extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+      decoration: bg == AppColors.soft
+          ? const BoxDecoration(gradient: AppColors.softGradient, shape: BoxShape.circle)
+          : BoxDecoration(color: bg, shape: BoxShape.circle),
       child: Icon(icon, size: size * 0.55, color: color),
     );
   }
@@ -159,8 +167,10 @@ class GradientPanel extends StatelessWidget {
         decoration: const BoxDecoration(gradient: AppColors.gradient),
         child: Stack(
           children: [
-            Positioned(right: -40, top: -40, child: _circle(160, 20)),
-            Positioned(left: -30, bottom: -60, child: _circle(130, 14)),
+            const Positioned(right: -70, top: -70, child: AuroraGlow(size: 240, color: Color(0xFFFFFFFF), opacity: 0.3)),
+            const Positioned(left: -80, bottom: -100, child: AuroraGlow(size: 260, color: Color(0xFF7FDBFF), opacity: 0.4)),
+            Positioned(right: -40, top: -40, child: _circle(160, 18)),
+            Positioned(left: -30, bottom: -60, child: _circle(130, 12)),
             Padding(padding: padding, child: child),
           ],
         ),
@@ -168,6 +178,147 @@ class GradientPanel extends StatelessWidget {
     );
     if (!lightStatusBar) return panel;
     return AnnotatedRegion<SystemUiOverlayStyle>(value: SystemUiOverlayStyle.light, child: panel);
+  }
+}
+
+/// Tombol melayang dengan latar gradien (menggantikan FloatingActionButton polos).
+class LkFab extends StatelessWidget {
+  const LkFab({
+    super.key,
+    required this.onPressed,
+    required this.child,
+    this.tooltip,
+    this.gradient = AppColors.gradient,
+    this.foregroundColor = Colors.white,
+    this.shadowColor = const Color(0x660B4FB3),
+    this.shape = const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
+  });
+
+  final VoidCallback onPressed;
+  final Widget child;
+  final String? tooltip;
+  final Gradient gradient;
+  final Color foregroundColor;
+  final Color shadowColor;
+  final ShapeBorder shape;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: shape,
+        gradient: gradient,
+        shadows: [BoxShadow(color: shadowColor, blurRadius: 14, offset: const Offset(0, 6))],
+      ),
+      child: FloatingActionButton(
+        onPressed: onPressed,
+        tooltip: tooltip,
+        backgroundColor: Colors.transparent,
+        foregroundColor: foregroundColor,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        shape: shape,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// CircleAvatar dengan latar gradien (soft = pastel untuk avatar kecil di daftar).
+class GradientAvatar extends StatelessWidget {
+  const GradientAvatar({super.key, required this.child, this.radius, this.soft = false});
+  final Widget child;
+  final double? radius;
+  final bool soft;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: soft ? AppColors.softGradient : AppColors.gradient,
+      ),
+      child: CircleAvatar(radius: radius, backgroundColor: Colors.transparent, child: child),
+    );
+  }
+}
+
+/// Cahaya lembut berbentuk lingkaran radial, seperti busa/gelembung (hiasan latar panel dan splash).
+class AuroraGlow extends StatelessWidget {
+  const AuroraGlow({super.key, required this.size, required this.color, this.opacity = 0.5});
+  final double size;
+  final Color color;
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(colors: [color.withValues(alpha: opacity), color.withValues(alpha: 0)]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Chip pilihan: saat terpilih berlatar gradien dengan cahaya, saat tidak terpilih putih berbingkai.
+class LkChoiceChip extends StatelessWidget {
+  const LkChoiceChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+    this.avatar,
+    this.labelStyle,
+  });
+
+  final Widget label;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+  final Widget? avatar;
+  final TextStyle? labelStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(12);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: selected ? AppColors.gradientH : null,
+        color: selected ? null : Colors.white,
+        borderRadius: radius,
+        border: selected ? null : Border.all(color: AppColors.border),
+        boxShadow: selected
+            ? const [BoxShadow(color: Color(0x661E88E5), blurRadius: 10, offset: Offset(0, 4))]
+            : null,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: () => onSelected(!selected),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 34),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (avatar != null) ...[avatar!, const SizedBox(width: 6)],
+                  DefaultTextStyle.merge(style: labelStyle, child: label),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -370,7 +521,7 @@ Future<bool> confirmDelete(
       actions: [
         TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Batal')),
         FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+          style: solidFilledStyle(background: AppColors.danger),
           onPressed: () => Navigator.of(ctx).pop(true),
           child: Text(confirmLabel),
         ),

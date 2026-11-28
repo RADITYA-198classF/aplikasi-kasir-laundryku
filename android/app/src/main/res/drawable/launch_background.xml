@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layar peluncuran native: latar biru, supaya tidak ada kilatan putih sebelum splash Flutter tampil -->
+<!-- Layar peluncuran native: gradien biru ke putih (sama dengan splash Flutter), supaya tidak ada kilatan warna lain sebelum splash Flutter tampil -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/splash_blue" />
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#0A3D91"
+                android:centerColor="#5BB4F5"
+                android:endColor="#FFFFFF" />
+        </shape>
+    </item>
 </layer-list>

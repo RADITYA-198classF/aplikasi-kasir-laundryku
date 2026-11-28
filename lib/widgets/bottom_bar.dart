@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
 
-/// Satu tujuan di bilah bawah. [tab] 2 adalah slot tombol kuning "Transaksi Baru".
+/// Satu tujuan di bilah bawah. [tab] 2 adalah slot tombol melayang "Transaksi Baru".
 class BarItem {
   const BarItem(this.tab, this.icon, this.label);
   final int tab;
@@ -35,7 +35,7 @@ class LkBottomBar extends StatelessWidget {
 
   Widget _item(BarItem item) {
     final selected = current == item.tab;
-    final color = selected ? AppColors.amber : Colors.white;
+    final color = selected ? AppColors.amber : Colors.white.withAlpha(215);
     final isFabSlot = item.tab == 2;
     return Expanded(
       child: InkWell(
@@ -66,14 +66,28 @@ class LkBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      height: 68,
-      padding: EdgeInsets.zero,
-      color: AppColors.primaryDark,
-      surfaceTintColor: Colors.transparent,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 7,
-      child: Row(children: [for (final i in items) _item(i)]),
+    // Gradien dipasang di dalam BottomAppBar (dipotong mengikuti lekukan tombol tengah).
+    // Area aman bawah diisi sendiri supaya gradien menyambung sampai tepi layar.
+    final inset = MediaQuery.of(context).padding.bottom;
+    return MediaQuery.removePadding(
+      context: context,
+      removeBottom: true,
+      child: BottomAppBar(
+        height: 68 + inset,
+        padding: EdgeInsets.zero,
+        color: AppColors.primaryDark,
+        surfaceTintColor: Colors.transparent,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 7,
+        clipBehavior: Clip.antiAlias,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(gradient: AppColors.gradientH),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: inset),
+            child: Row(children: [for (final i in items) _item(i)]),
+          ),
+        ),
+      ),
     );
   }
 }

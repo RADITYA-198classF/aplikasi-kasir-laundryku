@@ -112,10 +112,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
     return Scaffold(
       appBar: lkAppBar('Kelola Layanan'),
       floatingActionButton: state.isOwner
-          ? FloatingActionButton(
+          ? LkFab(
               onPressed: () => _openForm(),
-              backgroundColor: AppColors.primaryDark,
-              foregroundColor: Colors.white,
               tooltip: 'Tambah layanan',
               child: const Icon(Icons.add),
             )
